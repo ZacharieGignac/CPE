@@ -7,6 +7,9 @@ Cisco Port Expansion
 * Use the functions you already know and love, such as pinMode, digitalWrite, digitalRead, analogWrite, analogRead
 * Current performance is about 10 read/writes per second
 
+## WARNING!
+THIS IS ALPHA SOFTWARE. USE AT YOUR OWN RISK. I DON'T SUPPORT THIS SOFTWARE, NOR TAKE ANY RESPONSIBILITIES IF SOMETHING EXPLODES OR SOMEONE LOOSES AN ARM.
+
 ## Required hardware
 * ESP32 (WROOM32)
 * USB cable
