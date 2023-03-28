@@ -56,8 +56,11 @@ export const SERIAL_SETTINGS = {
 };
 export const DATA_TERMINATORS = {
   LF: '%%LF%%',
-  CR: '%%CR%%'
+  CR: '%%CR%%',
+  DQ: '%%DQ%%'
 };
+
+
 
 export const DIGITAL = {
   HIGH: 1,
@@ -94,8 +97,9 @@ function sendMessage(message) {
 function sendNextMessage() {
   mqSending = true;
   var message = mq[0];
-  message = message.replaceAll('\n', DATA_TERMINATORS.LF);
-  message = message.replaceAll('\r', DATA_TERMINATORS.CR);
+  message = message.replace(/\n/g, DATA_TERMINATORS.LF);
+  message = message.replace(/\r/g, DATA_TERMINATORS.CR);
+  message = message.replace(/"/g, DATA_TERMINATORS.DQ);
   xapi.Command.Message.Send({ Text: message });
   setTimeout(() => {
     mq.shift();
@@ -207,7 +211,7 @@ export function cpe_discover(display = true) {
 }
 
 function getSerialSettings(settings) {
-  return SERIAL_SETTINGS[`${settings}`];
+  return SERIAL_SETTINGS[settings];
 }
 
 
@@ -256,12 +260,10 @@ export function cpe(serial) {
 export function serialPort(cpe, port, baudRate, settings, terminator) {
   let portSettings = getSerialSettings(settings);
   var bootmh = undefined;
-  terminator = terminator.replaceAll('\n', DATA_TERMINATORS.LF);
-  terminator = terminator.replaceAll('\r', DATA_TERMINATORS.CR);
+  terminator = terminator.replace(/\n/g, DATA_TERMINATORS.LF);
+  terminator = terminator.replace(/\r/g, DATA_TERMINATORS.CR);
   return {
     send: (data) => {
-      data = data.replaceAll('\n', DATA_TERMINATORS.LF);
-      data = data.replaceAll('\r', DATA_TERMINATORS.CR);
       sendMessage(`m=cpe,t=11,s=${cpe.serial},p=${port},d=${data}`);
     },
     open: () => {
@@ -269,10 +271,10 @@ export function serialPort(cpe, port, baudRate, settings, terminator) {
         bootmh = addMsgHandler(parsed => {
           if (parsed.t == '0' && bootmh != undefined) {
             removeMsgHandler(bootmh);
-            sendMessage(`m=cpe,t=5,s=${cpe.serial},p=${port},b=${baudRate},c=${SERIAL_SETTINGS['8N1']},e=${terminator}`);
+            sendMessage(`m=cpe,t=5,s=${cpe.serial},p=${port},b=${baudRate},c=${portSettings},e=${terminator}`);
           }
         });
-        sendMessage(`m=cpe,t=5,s=${cpe.serial},p=${port},b=${baudRate},c=${SERIAL_SETTINGS['8N1']},e=${terminator}`);
+        sendMessage(`m=cpe,t=5,s=${cpe.serial},p=${port},b=${baudRate},c=${portSettings},e=${terminator}`);
         let mh = addMsgHandler(parsed => {
           var opTimeout = setTimeout(() => {
             failure(`Timeout opening port ${port} on ${cpe.serial}`);

@@ -231,7 +231,6 @@ void openS1(String baudrate, String settings, String term) {
   }
 
   extSerial1.begin(baudrate.toInt(), settings.toInt(), S1RX, S1TX);
-  //extSerial1.begin(9600,SERIAL_8N1,S1RX,S1TX);
 
   s1Opened = true;
   xapiMessage("m=cpe,t=4,v=" + String(PROTOCOL_VERSION) + ",s=" + serialNumber + ",p=s1");
@@ -257,17 +256,20 @@ void openS2(String baudrate, String settings, String term) {
 void dataReceived(String port, String data) {
   data.replace("\n", "%%LF%%");
   data.replace("\r", "%%CR%%");
+  data.replace("\"", "%%DQ%%");
   xapiMessage("m=cpe,t=8,v=" + String(PROTOCOL_VERSION) + ",s=" + serialNumber + ",p=" + port + ",d=" + data);
 }
 
 void sendS1(String data) {
   data.replace("%%LF%%", "\n");
   data.replace("%%CR%%", "\r");
+  data.replace("%%DQ%%", "\"");
   extSerial1.print(data);
 }
 void sendS2(String data) {
   data.replace("%%LF%%", "\n");
   data.replace("%%CR%%", "\r");
+  data.replace("%%DQ%%", "\"");
   extSerial2.print(data);
 }
 
@@ -307,7 +309,6 @@ void pinAnalogRead(String sPin, String request) {
 
 void setup() {
   serialNumber = getSerialNumber();
-
   Serial.begin(115200);
   pinMode(2, OUTPUT);
   digitalWrite(2, HIGH);
@@ -329,8 +330,6 @@ void setup() {
 
   sprintf(buffer, "m=cpe,v=%s,t=0,p=%s,s=%s", String(PROTOCOL_VERSION), String(PRODUCT), serialNumber);
   xapiMessage(buffer);
-
-  extSerial1.begin(9600, SERIAL_8N1, S1RX, S1TX);
 }
 
 

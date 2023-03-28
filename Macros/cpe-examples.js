@@ -107,24 +107,35 @@ async function serialPortDemo() {
   /* Create a port expansion handler */
   let serialadapter = cpe(serial_number);
 
-  //Configuring serial port
-  let lgtv = serialPort(serialadapter, SERIALPORT.S1, 9600, '8N1', '\r');
 
-  lgtv.onBoot(event => {
+
+  //Configuring serial port
+  let sony = serialPort(serialadapter, SERIALPORT.S1, 38400, '8E1', '\n');
+
+  sony.onBoot(event => {
     console.log(`Device ${event.model} (${event.serial}) just rebooted.`);
   });
 
   //Waiting for serial port open
-  await lgtv.open();
+  await sony.open();
 
   //Handling incoming data from TV
-  lgtv.onData(data => {
-    console.log('Data received from LG TV: ' + data);
+  sony.onData(data => {
+    console.log('Data received from SONY PROJECTOR: ' + data);
   });
 
   //serialadapter.raw('MAIN_LOOP_DELAY',2000);
+  xapi.Event.UserInterface.Extensions.Widget.Action.on(action => {
+    if (action.WidgetId == 'tgproj') {
+      if (action.Value == 'on') {
+        sony.send(`blank "off"\r\n`); //Power ON TV!
+      }
+      else {
+        sony.send(`blank "on"\r\n`);
+      }
+    }
+  });
 
-  lgtv.send(`ka 00 01\r\n`); //Power ON TV!
 
 }
 
@@ -151,8 +162,10 @@ async function ledDemo() {
 
 }
 
+
+
 // cpe_discover();       // <--- Run this to discover connected boards
-// ledDemo();            // <-- Run this for the led control demo. Add a toggle named "tglled" to a panel
+//ledDemo();            // <-- Run this for the led control demo. Add a toggle named "tglled" to a panel
 // serialPortDemo();     // <-- Run this for serial port demo.
 // readStyle1();         // <-- analog read demo style 1
 // readStyle2();         // <-- analog read demo style 2
