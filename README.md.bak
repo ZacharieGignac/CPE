@@ -14,13 +14,10 @@ Cisco Port Expansion
 * A Cisco Codec (tested with DeskPro and RoomKitPro)
 
 ## Current implementation
-* Only the WROOM32 has been tested (might work with other boards)
-* The ESP32 software will be available as a library (one day) so you can use it inside your own sketch.
+I do not give the source code for the ESP32 software yet. Only the WROOM32 is supported. The software will be available as a library so you can use it inside your own sketch. The current software is distributed as a binary.
 
-## What's included ?
-* INO sketch
-* Macro Framework "Driver"
-* Examples
+The Cisco-Side driver source is available.
+
 
 ## Usage
 * Open the sketch in Arduino IDE
